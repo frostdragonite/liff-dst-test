@@ -16,6 +16,12 @@ const headers = {
     "Authorization": `Bearer ${process.env.LINE_CHANNEL_ACCESS_TOKEN}`
 }
 
+app.get('/test', (req, res) => {
+    res.json({
+        message: "Hello from the server!"
+    })
+})
+
 app.post('/send-message', async (req,res) => {
     try {
         const { userId, message } = req.body
