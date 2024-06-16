@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div>
+        <span id="loading">Loading..</span>
+
+        <div id="lineProfile" style="display: none;">
+            <img id="lineImage" width="100px" src="https://picsum.photos/536/354">
+            <div id="lineName">Hello Name</div>
+            <div id="lineUID">UID: Your UID</div>
+
+            <div>
+                <input id="lineMessage" type="text">
+                <button onclick="sendMessage()">Send Message</button>
+            </div>
+            
+        </div>
+
+        <div>
+            <button id="logout" onclick="logout()">Log Out</button>
+        </div>
+    </div>
+    <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/versions/2.22.3/sdk.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.7.2/axios.min.js" integrity="sha512-JSCFHhKDilTRRXe9ak/FJ28dcpOJxzQaCd3Xg8MyF6XFjODhy/YMCM8HW0TFDckNHWUewW+kfvhin43hKtJxAw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        let userId = ""
+
+        const main = async () => {
+            await liff.init({ liffId: "2005573575-davnr8BX" });
+            if (!liff.isLoggedIn()) {
+                liff.login()
+                return false
+            }
+            console.log("Login success")
+
+            const profile = await liff.getProfile()
+
+            // DOM can access to id element right away
+            loading.style.display = "none"
+            lineImage.src = profile.pictureUrl
+            lineName.textContent = `Hello ${profile.displayName}!`
+            lineUID.textContent = `UID: ${profile.userId}`
+            lineProfile.style.display = "block"
+
+            userId = profile.userId
+        }
+
+        const logout = async () => {
+            liff.logout()
+            window.location.reload()
+        }
+
+        const sendMessage = async () => {
+            try {
+                if (!lineMessage.value) {
+                    throw new Error("Message not foundf")
+                }
+
+                const response = axios.post(
+                    "http://localhost:8888/send-message",
+                    {
+                        userId,
+                        message: lineMessage.value
+                    }
+                )
+
+                console.log("Response", response.data)
+
+            } catch (error) {
+                console.log("Error", error)
+            }
+            console.log(userId, lineMessage.value)
+        }
+        main()
+    </script>
+</body>
+</html>
