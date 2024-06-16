@@ -1,14 +1,16 @@
 const express = require('express')
 const axios = require('axios')
 const cors = require('cors')
+const dotenv = require('dotenv')
+
+// Load environment variables from .env file
+dotenv.config()
 
 const app = express()
 app.use(express.json())
 app.use(cors())
 
-require('dotenv').config()
-
-const PORT = "8888"
+const PORT = process.env.PORT || 8888;
 const LINE_BOT_API = "https://api.line.me/v2/bot"
 
 const headers = {
