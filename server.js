@@ -24,10 +24,9 @@ app.get('/test', (req, res) => {
     })
 })
 
-app.post('/send-message', async (req,res) => {
+//Send Message
+const sendMessage = async (userId, message) => {
     try {
-        const { userId, message } = req.body
-
         const body = {
             to: userId,
             messages: [
@@ -39,6 +38,16 @@ app.post('/send-message', async (req,res) => {
         }
 
         const response = await axios.post(`${LINE_BOT_API}/message/push`, body, {headers})
+        return response
+    } catch (error) {
+        throw new Error (error)
+    }
+}
+
+app.post('/send-message', async (req,res) => {
+    try {
+        const { userId, message } = req.body
+        const response = await sendMessage(userId, message)
 
         console.log("response", response.data)
         res.json({
@@ -51,6 +60,19 @@ app.post('/send-message', async (req,res) => {
     
 })
 
+app.post('/webhook', async (req, res) => {
+    const { events } = req.body
+
+    if (!events || events.length === 0) {
+        res.json({
+            message: "OK"
+        })
+        return false
+    }
+
+    console.log("events", events)
+
+})
 
 app.listen(PORT, (req, res) => {
     console.log(`run at http://localhost:${PORT}`)
