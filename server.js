@@ -211,7 +211,7 @@ app.post('/commands/:id', async (req,res) => {
         }
 
         command.status = status
-        await sendMessage(userId, `ID: ${command.id}, status: ${command.status}`)
+        await sendMessage(command.userId, `ID: ${command.id}, status: ${command.status}`)
         res.status(200).json({
             id: command.id,
             command: command.command,
