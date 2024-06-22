@@ -3,33 +3,170 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Command</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div>
-        <span id="loading">Loading..</span>
-
-        <div id="lineProfile" style="display: none;">
-            <img id="lineImage" width="100px" src="https://picsum.photos/536/354">
-            <div id="lineName">Hello Name</div>
-            <div id="lineUID">UID: Your UID</div>
-
-            <div>
-                <input id="lineMessage" type="text">
-                <button onclick="sendMessage()">Send Message</button>
-            </div>
-            
-        </div>
-
-        <div>
-            <button id="logout" onclick="logout()">Log Out</button>
-        </div>
+    <div id="placeholder">
+        <div class="animated-background"></div>
     </div>
+
+    <div id="content-wrapper">
+        <h1 id="serverName">Server Name</h1>
+
+        <div id="lineProfile" >
+            <div id="lineImageContainer">
+                <img id="lineImage" width="100px" src="https://picsum.photos/536/354">
+            </div>
+            <p id="lineName">Hello</p>
+            <p id="lineUID">UID</p>
+        </div>
+        
+        <div class="playerContainer">
+            <label for="playerDropList">Choose A Player:</label> <span id="selectedPlayer">Player</span>
+            <br />
+            <select id="playerDropList" name="players">
+            </select>
+            <button onclick="createPlayerList()">Refresh User</button>
+        </div>
+
+        <div class="givingContainer">
+            <label for="prefabBox">Item Prefab:</label>
+            <input type="text" id="prefabBox" name="prefabBox" placeholder="Enter prefab name" />
+            <div></div>
+            <label for="amountBox">Given Amount:</label>
+            <input type="number" id="amountBox" name="amountBox" min="1" max="600" placeholder="Max 600" />
+        </div>
+
+        <div id="commandContainer">
+            <label for="commandBox">Command To Send</label> <br />
+            <textarea id="commandBox" name="commandBox" rows="5" cols="40"></textarea>
+        </div>
+
+        <button class="submitBtn" onclick="sendCommand()">Submit</button>
+        
+    </div>
+
     <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/versions/2.22.3/sdk.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.7.2/axios.min.js" integrity="sha512-JSCFHhKDilTRRXe9ak/FJ28dcpOJxzQaCd3Xg8MyF6XFjODhy/YMCM8HW0TFDckNHWUewW+kfvhin43hKtJxAw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    
     <script>
+        // Initializing variables
+        // const api_url = "http://localhost:8888"
+        const api_url = "https://ikkrix-msg-api-218c41e663aa.herokuapp.com"
+        const urlParams = new URLSearchParams(window.location.search);
+        const commandParam = urlParams.get('command');
+        let playerName = "Wilson"
+        let itemPrefab = "baconeggs"
+        let itemAmount = 1
         let userId = ""
 
+
+        // =======================================================
+        // Command Inputs
+        const updateCommand = () => {
+            const commandList = {
+                "quick1": `api_godmode('${playerName}')`,
+                "quick2": `api_creative('${playerName}')`,
+                "quick3": `api_refresh('${playerName}')`,
+                "quick4": `api_giveitem('${playerName}','${itemPrefab}', ${itemAmount})`,
+                "quick5": `api_dropitem('${playerName}')`,
+                "quick6": `api_killrevive('${playerName}')`,
+                "quick7": `api_reroll('${playerName}')`,
+                "quick8": `api_despawn('${playerName}')`,
+                "quick9": `api_extinguish('${playerName}')`,
+                "quick10": `api_repair('${playerName}')`,
+            };
+
+            document.querySelector('#selectedPlayer').textContent = playerName;
+
+            if (commandParam && commandList.hasOwnProperty(commandParam)) {
+                document.getElementById('commandBox').value = commandList[commandParam];
+            } else {
+                document.getElementById('commandBox').value = "c_announce('Hello!')";
+            }
+        }
+
+        const getCurrentPlayers = async () => {
+            try {
+                const response = await axios.get(`${api_url}/status`)
+                const playerList = response.data.server.players
+                return playerList
+            } catch (error) {
+                throw new Error("Server status cannot be fetched")
+            }
+        }
+
+        const createPlayerList = async () => {
+            const players = await getCurrentPlayers()
+            const playerDropList = document.querySelector('#playerDropList');
+
+            players.forEach((player) => {
+                const option = document.createElement('option');
+                option.value = player.name;
+                option.textContent = `${player.name} - ${player.prefab} (${player.userid})`;
+                playerDropList.appendChild(option);
+            })
+
+            playerDropList.addEventListener('change', function() {
+                playerName = playerDropList.value
+                updateCommand()
+            });
+
+            if (players && players.length > 0) {
+                playerName = players[0].name
+                updateCommand()
+            }
+        }
+        
+        prefabBox.addEventListener('input', function() {
+            itemPrefab = prefabBox.value
+            updateCommand();
+        });
+
+        amountBox.addEventListener('input', function() {
+            itemAmount = amountBox.value
+            updateCommand();
+        });
+
+        // =======================================================
+        // Submitting Commands
+        const processCommand = () => {
+            const str = commandBox.value
+            // Fix all the quotes, new lines, remove extra spaces and rejoin with semicolon
+            const split = str.split(/\r\n|\r|\n/)
+            const trimmedSplit = split.map((line) => line.replace(/^\s+/g, ''));
+            const rawCommand = trimmedSplit.join('; ')
+            console.log(rawCommand)
+            return rawCommand
+        }
+        
+        const sendCommand = async () => {
+            try {
+                const command = processCommand()
+                const APIresponse = await axios.post(
+                    `${api_url}/commands`,
+                    { command: command , userId: userId}
+                )
+
+                console.log("API Response", APIresponse.data)
+
+                const LINEresponse = await axios.post(
+                    `${api_url}/line-send-message`,
+                    {
+                        userId,
+                        message: `Received: [${APIresponse.data.id}] "${APIresponse.data.command}"`
+                    }
+                )
+
+                console.log("Line Response", LINEresponse.data)
+            } catch (error) {
+                console.log("Error", error)
+            }
+        }
+        
+        // =======================================================
+        // For Initializing LINE
         const main = async () => {
             await liff.init({ liffId: "2005573575-davnr8BX" });
             if (!liff.isLoggedIn()) {
@@ -38,45 +175,32 @@
             }
             console.log("Login success")
 
-            const profile = await liff.getProfile()
+            const profile = await liff.getProfile();
+            
+            await createPlayerList();
 
             // DOM can access to id element right away
-            loading.style.display = "none"
+
             lineImage.src = profile.pictureUrl
             lineName.textContent = `Hello ${profile.displayName}!`
             lineUID.textContent = `UID: ${profile.userId}`
-            lineProfile.style.display = "block"
-
             userId = profile.userId
-        }
 
-        const logout = async () => {
-            liff.logout()
-            window.location.reload()
-        }
-
-        const sendMessage = async () => {
-            try {
-                if (!lineMessage.value) {
-                    throw new Error("Message not foundf")
-                }
-
-                const response = axios.post(
-                    "https://ikkrix-msg-api-218c41e663aa.herokuapp.com/send-message",
-                    {
-                        userId,
-                        message: lineMessage.value
-                    }
-                )
-
-                console.log("Response", response.data)
-
-            } catch (error) {
-                console.log("Error", error)
+            console.log(commandParam)
+            if (commandParam === "quick4") {
+                const container = document.querySelector('.givingContainer')
+                console.log(container)
+                container.style.display = "block"
             }
-            console.log(userId, lineMessage.value)
+
+            const placeholder = document.querySelector('#placeholder');
+            const content = document.querySelector('#content-wrapper');
+            placeholder.style.display = "none";
+            content.style.display = "block";
         }
+
         main()
     </script>
+ 
 </body>
 </html>

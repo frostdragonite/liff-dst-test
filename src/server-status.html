@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Status</title>
+    <link rel="stylesheet" href="styles-status.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="container server-container">
+        <h1>Server Status</h1>
+        <div class="server-status">
+            <p><strong>Server Name:</strong> <span id="serverName"></span></p>
+            <p><strong>Server Description:</strong> <span id="serverDescription"></span></p>
+            <p><strong>Players:</strong> <span id="currentPlayers"></span> / <span id="maxPlayers"></span></p>
+            <p><strong>Player Lists:</strong></p>
+            <ul id="playerList">
+            </ul>
+            <br />
+            <p><strong>Season:</strong> <span id="season"></span></p>
+            <p><strong>Time Phase:</strong> <span id="timePhase"></span></p>
+            <p><strong>Total Day:</strong> <span id="totalDay"></span></p>
+        </div>
+
+        <h2>Raw Data</h2>
+        <pre><code class="language-json" id="rawDataServer"></code></pre>
+    </div>
+
+    <div class="container command-container">
+        <h1>Command Logs</h1>
+        <div id="commandLogs"></div>
+        <h2>Raw Data</h2>
+        <pre><code class="language-json" id="rawDataCommand"></code></pre>
+    </div>
+
+    <!-- Axios -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.7.2/axios.min.js" integrity="sha512-JSCFHhKDilTRRXe9ak/FJ28dcpOJxzQaCd3Xg8MyF6XFjODhy/YMCM8HW0TFDckNHWUewW+kfvhin43hKtJxAw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!-- Prism.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/prism-json.min.js"></script>
+    <script>
+        // const api_url = "http://localhost:8888"
+        const api_url = "https://ikkrix-msg-api-218c41e663aa.herokuapp.com"
+        const urlParams = new URLSearchParams(window.location.search);
+        const commandParam = urlParams.get('status');
+
+        const getCurrentServerStatus = async () => {
+            try {
+                const response = await axios.get(`${api_url}/status`)
+                return response
+            } catch (error) {
+                throw new Error("Server status cannot be fetched")
+            }
+        }
+
+        const getCommandHistory = async () => {
+            try {
+                const response = await axios.get(`${api_url}/commands`)
+                return response
+            } catch (error) {
+                throw new Error("Command logs cannot be fetched")
+            }
+        }
+
+        const main = async () => {
+            if (commandParam === "server") {
+                const server = await getCurrentServerStatus()
+                const data = server.data.server
+
+                document.querySelector('.server-container').style.display = "block";
+
+                document.querySelector('#serverName').textContent = data.settings.name;
+                document.querySelector('#serverDescription').textContent = data.settings.description;
+                const currentPlayer = data.players.length
+                const maxPlayer = data.settings.maxplayers
+                document.querySelector('#currentPlayers').textContent = currentPlayer;
+                document.querySelector('#maxPlayers').textContent = maxPlayer;
+
+                const playerList = document.querySelector('#playerList')
+                data.players.forEach((player) => {
+                    const li = document.createElement('li')
+                    li.textContent = `${player.name} - ${player.prefab} (${player.userid})`
+                    playerList.appendChild(li)
+                })
+
+                document.querySelector('#season').textContent = data.statevars.season;
+                document.querySelector('#timePhase').textContent = data.statevars.phase;
+                document.querySelector('#totalDay').textContent = `Day ${data.statevars.cycles + 1}`;
+
+                // Update raw data
+                document.querySelector('#rawDataServer').textContent = JSON.stringify(data, null, 4);
+                // Highlight the code block
+                Prism.highlightElement(document.querySelector('#rawDataServer'));
+            }
+            if (commandParam === "command") {
+                const server = await getCommandHistory()
+                const data = server.data
+
+                document.querySelector('.command-container').style.display = "block";
+
+                console.log(data)
+                // Update command logs
+                const commandLogs = document.querySelector('#commandLogs');
+
+                data.commandLog.forEach(log => {
+                    const command = document.createElement('div');
+                    command.className = 'command-log';
+                    command.innerHTML = `
+                        <p><strong>ID:</strong> ${log.id}, <strong>Status:</strong> ${log.status}</p>
+                        <p><strong>Command:</strong> "${log.command}"</p>
+                    `;
+                    commandLogs.appendChild(command);
+                });
+
+                // Update raw data
+                document.querySelector('#rawDataCommand').textContent = JSON.stringify(data, null, 4);
+                // Highlight the code block
+                Prism.highlightElement(document.querySelector('#rawDataCommand'));
+            }
+        }
+
+        main()
+    </script>
+</body>
+</html>

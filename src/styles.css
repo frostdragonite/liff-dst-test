@@ -1,0 +1,78 @@
+body {
+    margin: 0;
+}
+
+#placeholder {
+    background-color: #eee;
+    height: 100vh;
+}
+   
+@keyframes placeHolderShimmer{
+    0%{
+        background-position: -468px 0
+    }
+    100%{
+        background-position: 468px 0
+    }
+}
+   
+.animated-background {
+    animation-duration: 1.75s;
+    animation-fill-mode: forwards;
+    animation-iteration-count: infinite;
+    animation-name: placeHolderShimmer;
+    animation-timing-function: linear;
+    background: darkgray;
+    background: linear-gradient(to right, #eeeeee 10%, #dddddd 18%, #eeeeee 33%);
+    background-size: 800px 104px;
+    height: inherit;
+    position: relative;
+}
+
+#content-wrapper {
+    display: none;
+    margin: 16px
+}
+
+#lineProfile {
+    height: 100px;
+    margin: 10px 0;
+}
+
+#lineProfile p {
+    font-size: 1.2rem;
+}
+
+#lineImageContainer {
+    float: left;
+    margin-right: 10px;
+    height: 100px;
+    width: 100px;
+}
+
+label {
+    font-weight: bold;
+}
+
+.playerContainer {
+    margin: 10px 0;
+}
+.playerContainer select {
+    margin-top: 5px;
+}
+
+.givingContainer {
+    display: none;
+    margin: 20px 0;
+}
+
+.givingContainer div {
+    height: 10px;
+}
+
+.submitBtn {
+    padding: 5px 10px;
+    margin: 10px 0;
+    cursor: pointer;
+    border-radius: 5px;
+}
