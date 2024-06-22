@@ -58,7 +58,7 @@ const sendMessage = async (userId, message) => {
 // =========================== LIFF SERVER API ==========================
 // ======================================================================
 // For Adding Commands
-const addCommand = (command) => {
+const addCommand = (command, userId) => {
     commands.push({
         'id': commands.length,
         'command': command,
@@ -81,10 +81,7 @@ app.post('/commands', async (req,res) => {
             return res.status(503).json({ error: 'Server is not initialized' });
         }
 
-        console.log(command)
-        console.log(userId)
-        const status = addCommand(command)
-        console.log(status)
+        const status = addCommand(command, userId)
 
         res.status(status).json({
             message: "Command added successfully",
