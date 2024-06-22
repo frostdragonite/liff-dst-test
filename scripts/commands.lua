@@ -21,7 +21,6 @@ function api_refresh(player_name)
     c_sethunger(1)
     c_settemperature(25)
     c_setmoisture(0)
-    c_setbeaverness(1)
     SetDebugEntity(old_debug) 
 end
 
