@@ -7,6 +7,7 @@
         "use": "@vercel/static"
       }
     ],
+    "cleanUrls": true,
     "routes": [
       { "src": "/", "dest": "/src/index.html" },
       { "src": "/server-status", "dest": "/src/server-status.html" }
