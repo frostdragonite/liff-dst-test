@@ -59,6 +59,7 @@
         let itemPrefab = "baconeggs"
         let itemAmount = 1
         let userId = ""
+        let serverName = "Server"
 
 
         // =======================================================
@@ -90,6 +91,8 @@
             try {
                 const response = await axios.get(`${api_url}/status`)
                 const playerList = response.data.server.players
+                serverName = response.data.server.settings.name
+                document.querySelector('#serverName').textContent = serverName;
                 return playerList
             } catch (error) {
                 throw new Error("Server status cannot be fetched")

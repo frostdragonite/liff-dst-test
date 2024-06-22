@@ -143,7 +143,6 @@ app.post('/status', async (req,res) => {
             return res.status(400).json({ error: 'Data is missing' });
         }
 
-        console.log("Server Status:", data)
         serverStatus = data
         res.status(201).json({
             message: "Status updated successfully",
@@ -163,7 +162,6 @@ const getCommand = (status) => {
 }
 
 app.get('/commands', (req, res) => {
-    console.log("Pending Command: /commands")
     try {
         const statusFilter = req.query.status;
 
