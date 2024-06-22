@@ -85,7 +85,7 @@ app.post('/commands', async (req,res) => {
         res.status(status).json({
             message: "Command added successfully",
             id: commands.length - 1,
-            command: commands,
+            command: command,
             userId: userId
         })
     } catch (error) {  

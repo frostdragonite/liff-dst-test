@@ -85,7 +85,8 @@ if TheNet and TheNet:GetIsServer() then
 	end
 
 	-- Encoding pointers: https://docs.coronalabs.com/tutorial/data/encodeURL/index.html
-	local API_URL = "http://localhost:8888"
+	-- local API_URL = "http://localhost:8888"
+	local API_URL = "https://ikkrix-msg-api-218c41e663aa.herokuapp.com"
 	local API_COMMANDS = API_URL .. "/commands"
 	local COMMAND_LIST = "commands.lua"
 

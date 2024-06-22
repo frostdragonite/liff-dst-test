@@ -19,7 +19,6 @@
                 <img id="lineImage" width="100px" src="https://picsum.photos/536/354">
             </div>
             <p id="lineName">Hello</p>
-            <p id="lineUID">UID</p>
         </div>
         
         <div class="playerContainer">
@@ -101,6 +100,10 @@
             const players = await getCurrentPlayers()
             const playerDropList = document.querySelector('#playerDropList');
 
+            // Clear existing options
+            playerDropList.innerHTML = '';
+
+            // Add new options
             players.forEach((player) => {
                 const option = document.createElement('option');
                 option.value = player.name;
@@ -183,7 +186,6 @@
 
             lineImage.src = profile.pictureUrl
             lineName.textContent = `Hello ${profile.displayName}!`
-            lineUID.textContent = `UID: ${profile.userId}`
             userId = profile.userId
 
             console.log(commandParam)
