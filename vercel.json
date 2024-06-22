@@ -9,7 +9,7 @@
     ],
     "cleanUrls": true,
     "routes": [
-      { "src": "/", "dest": "/src/index.html" },
-      { "src": "/server-status", "dest": "/src/server-status.html" }
+      { "src": "/", "dest": "/index.html" },
+      { "src": "/server-status", "dest": "/server-status.html" }
     ]
   }
