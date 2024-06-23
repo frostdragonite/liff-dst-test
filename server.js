@@ -297,10 +297,6 @@ app.post('/webhook', async (req, res) => {
         const event = events[0]
         const userId = event.source.userId
 
-        res.json({
-            message: "OK"
-        })
-
         //Clear Command
         if (event.type === "message" && event.message.type === "text") {
             const command = event.message.text
@@ -311,6 +307,9 @@ app.post('/webhook', async (req, res) => {
                 await sendMessage(userId, "Clearing the server...")
             }
         }
+        res.status(200).json({
+            message: "OK"
+        })
         console.log("events", events)
     } catch (error) {
         console.log("Error Webhook")
