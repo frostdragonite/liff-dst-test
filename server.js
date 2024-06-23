@@ -54,6 +54,25 @@ const sendMessage = async (userId, message) => {
     }
 }
 
+// Send Broadcast
+const sendBroadMessage = async (message) => {
+    try {
+        const body = {
+            messages: [
+                {
+                    type: "text",
+                    text: message
+                }
+            ]
+        }
+
+        const response = await axios.post(`${LINE_BOT_API}/message/broadcast`, body, {headers})
+        return response
+    } catch (error) {
+        console.log("Couldn't send init server message")
+        throw new Error (error)
+    }
+}
 // ======================================================================
 // =========================== LIFF SERVER API ==========================
 // ======================================================================
@@ -124,6 +143,9 @@ app.post('/init', async (req,res) => {
         serverName = name
 
         console.log("Initialized server:", serverName)
+        
+        await sendBroadMessage(`Initialized server: ${serverName}`)
+        
         res.status(201).json({
             message: "Initialize successfully",
             serverName: serverName,
@@ -230,6 +252,8 @@ app.post('/clear', async (req,res) => {
     try {
         serverName = ""
         commands = []
+        serverStatus = []
+
         res.status(200).json({
             message: "Clearing server successfully. You can initialize again."
         })
@@ -274,6 +298,17 @@ app.post('/line-webhook', async (req, res) => {
             res.json({
                 message: "OK"
             })
+
+            //Clear Command
+            if (event.type === "message" && event.message.type === "text") {
+                const command = event.message.text
+                if (command === "clear") {
+                    serverName = ""
+                    commands = []
+                    serverStatus = []
+                    await sendMessage(userId, "Clearing the server...")
+                }
+            }
             return false
         }
     
