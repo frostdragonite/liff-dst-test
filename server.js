@@ -287,7 +287,7 @@ app.post('/line-send-message', async (req,res) => {
     }
 })
 
-app.post('/line-webhook', async (req, res) => {
+app.post('/webhook', async (req, res) => {
     const { events } = req.body
     try {
         if (!events || events.length === 0) {
