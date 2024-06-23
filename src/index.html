@@ -166,6 +166,9 @@
                 )
 
                 console.log("Line Response", LINEresponse.data)
+                if (commandParam && commandList.hasOwnProperty(commandParam)) {
+                    liff.closeWindow()
+                }
             } catch (error) {
                 console.log("Error", error)
             }
