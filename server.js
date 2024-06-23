@@ -291,27 +291,26 @@ app.post('/webhook', async (req, res) => {
     const { events } = req.body
     try {
         if (!events || events.length === 0) {
-            
-            const event = events[0]
-            const userId = event.source.userId
-    
-            res.json({
-                message: "OK"
-            })
-
-            //Clear Command
-            if (event.type === "message" && event.message.type === "text") {
-                const command = event.message.text
-                if (command === "clear") {
-                    serverName = ""
-                    commands = []
-                    serverStatus = []
-                    await sendMessage(userId, "Clearing the server...")
-                }
-            }
             return false
         }
     
+        const event = events[0]
+        const userId = event.source.userId
+
+        res.json({
+            message: "OK"
+        })
+
+        //Clear Command
+        if (event.type === "message" && event.message.type === "text") {
+            const command = event.message.text
+            if (command === "clear") {
+                serverName = ""
+                commands = []
+                serverStatus = []
+                await sendMessage(userId, "Clearing the server...")
+            }
+        }
         console.log("events", events)
     } catch (error) {
         console.log("Error Webhook")
