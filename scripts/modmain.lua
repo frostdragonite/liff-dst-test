@@ -33,7 +33,7 @@ if TheNet and TheNet:GetIsServer() then
 	local SERVER_MODSLIST = TheNet:GetServerModNames()
 
     -- This function is for building the report. Contains server data and put it in a JSON format.
-    local function BuildReport(source)
+    local function BuildReport(source, player)
 		local data = {}
 		local settings = {}
 		local players = {}
@@ -77,6 +77,10 @@ if TheNet and TheNet:GetIsServer() then
 		data["mods"] = SERVER_MODSLIST
 		data["statevars"] = statevars
 		data["players"] = players	
+
+		if (player ~= nil) then
+			data["player"] = player.name
+		end
 		
 		--- As per scripts\json.lua: encode() is not json compliant, only use encode_compliant()
 		data = _G.json.encode_compliant(data)
@@ -142,12 +146,12 @@ if TheNet and TheNet:GetIsServer() then
 	end
 
 	-- PUT Server Status
-	local function SendStatus(inst, source)
-		data = BuildReport(source)
+	local function SendStatus(inst, source, player)
+		data = BuildReport(source, player)
 		print("Sending build report:")
 		print("Source:", source)
 		TheSim:QueryServer(
-			API_URL .. "/status",
+			API_URL .. "/status" .. "?source=" .. source,
 			function(...) onStatusResponse(...) end,
 			"POST",
 			data
@@ -251,8 +255,8 @@ if TheNet and TheNet:GetIsServer() then
 
 		print("Adding listen for event and do periodic tasks...")
         -- inst:ListenForEvent("phasechanged", function(inst) SendStatus(inst, "phasechanged") end)
-        inst:ListenForEvent("ms_playerjoined", function(inst) SendStatus(inst, "ms_playerjoined") end)
-        inst:ListenForEvent("ms_playerleft", function(inst) SendStatus(inst, "ms_playerleft") end)
+        inst:ListenForEvent("ms_playerjoined", function(inst, player) SendStatus(inst, "ms_playerjoined", player) end)
+        inst:ListenForEvent("ms_playerleft", function(inst, player) SendStatus(inst, "ms_playerleft", player) end)
         inst:DoPeriodicTask(CONFIG_SENDSTATUS_FREQUENCY, function(inst) SendStatus(inst, "schedule") end)
         inst:DoPeriodicTask(CONFIG_GETCOMMANDS_FREQUENCY, function(inst) getCommandsQuery(inst, "schedule") end)
     end)

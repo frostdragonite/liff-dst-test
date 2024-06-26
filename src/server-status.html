@@ -95,7 +95,7 @@
             }
             if (commandParam === "commands") {
                 const server = await getCommandHistory()
-                const data = server.data
+                const data = server.data.commandLog
 
                 document.querySelector('.command-container').style.display = "block";
 
@@ -103,7 +103,7 @@
                 // Update command logs
                 const commandLogs = document.querySelector('#commandLogs');
 
-                data.commandLog.forEach(log => {
+                data.forEach(log => {
                     const command = document.createElement('div');
                     command.className = 'command-log';
                     command.innerHTML = `

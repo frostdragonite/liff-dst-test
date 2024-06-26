@@ -161,6 +161,7 @@ app.post('/status', async (req,res) => {
     console.log("Receiving: /status")
     try {
         const data = req.body
+        const statusFilter = req.query.source;
 
         if (!data) {
             return res.status(400).json({ error: 'Data is missing' });
@@ -170,6 +171,13 @@ app.post('/status', async (req,res) => {
         res.status(201).json({
             message: "Status updated successfully",
         })
+
+        if (statusFilter === "ms_playerjoined") {
+            await sendBroadMessage(`Player Joined: ${data[0].player}`)
+        }
+        if (statusFilter === "ms_playerleft") {
+            await sendBroadMessage(`Player Left: ${data[0].player}`)
+        }
     } catch (error) {  
         console.log("Error Uploading Status")
         res.status(500).json({ error: error.message });
