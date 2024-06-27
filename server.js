@@ -168,16 +168,19 @@ app.post('/status', async (req,res) => {
         }
 
         serverStatus = data
-        res.status(201).json({
-            message: "Status updated successfully",
-        })
-
+        console.log(data)
+        console.log(data[0])
         if (statusFilter === "ms_playerjoined") {
             await sendBroadMessage(`Player Joined: ${data[0].player}`)
         }
         if (statusFilter === "ms_playerleft") {
             await sendBroadMessage(`Player Left: ${data[0].player}`)
         }
+
+        res.status(201).json({
+            message: "Status updated successfully",
+        })
+
     } catch (error) {  
         console.log("Error Uploading Status")
         res.status(500).json({ error: error.message });
