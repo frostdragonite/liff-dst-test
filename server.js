@@ -168,13 +168,11 @@ app.post('/status', async (req,res) => {
         }
 
         serverStatus = data
-        console.log(data)
-        console.log(data[0])
         if (statusFilter === "ms_playerjoined") {
-            await sendBroadMessage(`Player Joined: ${data[0].player}`)
+            await sendBroadMessage(`Player Joined: ${data.player}`)
         }
         if (statusFilter === "ms_playerleft") {
-            await sendBroadMessage(`Player Left: ${data[0].player}`)
+            await sendBroadMessage(`Player Left: ${data.player}`)
         }
 
         res.status(201).json({
