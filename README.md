@@ -1,1 +1,2 @@
-LIFF_ID = 2005573575-davnr8BX
+Line BOT ID: @093edyxu
+![Chatbot QR Code](https://qr-official.line.me/sid/L/093edyxu.png)
