@@ -9,6 +9,14 @@
 </head>
 <body>
     <div class="container server-container">
+        
+        <div id="lineProfile" >
+            <div id="lineImageContainer">
+                <img id="lineImage" width="100px" src="https://picsum.photos/536/354">
+            </div>
+            <p id="lineName">Hello</p>
+        </div>
+
         <h1>Server Status</h1>
         <div class="server-status">
             <p><strong>Server Name:</strong> <span id="serverName"></span></p>
@@ -34,6 +42,8 @@
         <pre><code class="language-json" id="rawDataCommand"></code></pre>
     </div>
 
+    <!-- Test Liff -->
+    <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/versions/2.22.3/sdk.js"></script>
     <!-- Axios -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.7.2/axios.min.js" integrity="sha512-JSCFHhKDilTRRXe9ak/FJ28dcpOJxzQaCd3Xg8MyF6XFjODhy/YMCM8HW0TFDckNHWUewW+kfvhin43hKtJxAw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <!-- Prism.js -->
@@ -64,6 +74,14 @@
         }
 
         const main = async () => {
+            const profile = await liff.getProfile();
+            
+            // DOM can access to id element right away
+
+            lineImage.src = profile.pictureUrl
+            lineName.textContent = `Hello ${profile.displayName}!`
+            userId = profile.userId
+
             if (commandParam === "server") {
                 const server = await getCurrentServerStatus()
                 const data = server.data.server

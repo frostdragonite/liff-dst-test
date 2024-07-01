@@ -69,3 +69,20 @@ button:hover {
 .command-log p {
     margin: 5px 0;
 }
+
+
+#lineProfile {
+    height: 100px;
+    margin: 10px 0;
+}
+
+#lineProfile p {
+    font-size: 1.2rem;
+}
+
+#lineImageContainer {
+    float: left;
+    margin-right: 10px;
+    height: 100px;
+    width: 100px;
+}
