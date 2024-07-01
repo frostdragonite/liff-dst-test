@@ -294,7 +294,7 @@ app.post('/status', async (req,res) => {
   * > Get every commands with a specific status
   * @function getCommand
   * @param {string} status - The command status to filter by.
-  * @returns {Array} - An array of commands with the specified status.
+  * @returns {Object|Array} - An array of commands with the specified status.
   * --------------------------------------------------------------------- */
 const getCommand = (status) => {
     if (status) {
