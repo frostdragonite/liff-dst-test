@@ -46,7 +46,9 @@
         
     </div>
 
+    <!-- Line LIFF -->
     <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/versions/2.22.3/sdk.js"></script>
+    <!-- Axios -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.7.2/axios.min.js" integrity="sha512-JSCFHhKDilTRRXe9ak/FJ28dcpOJxzQaCd3Xg8MyF6XFjODhy/YMCM8HW0TFDckNHWUewW+kfvhin43hKtJxAw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     
     <script>
@@ -55,15 +57,14 @@
         const api_url = "https://ikkrix-msg-api-218c41e663aa.herokuapp.com"
         const urlParams = new URLSearchParams(window.location.search);
         const commandParam = urlParams.get('command');
+        let userId = ""
         let playerName = "Wilson"
         let itemPrefab = "baconeggs"
         let itemAmount = 1
-        let userId = ""
-        let serverName = "Server"
-
+        let serverName = "My Server"
 
         // =======================================================
-        // Command Inputs
+        // Quick Commands Navigation
         const updateCommand = () => {
             const commandList = {
                 "quick1": `api_godmode('${playerName}')`,
@@ -78,6 +79,7 @@
                 "quick10": `api_repair('${playerName}')`,
             };
 
+            // Provide default value for Player and Command
             document.querySelector('#selectedPlayer').textContent = playerName;
 
             if (commandParam && commandList.hasOwnProperty(commandParam)) {
@@ -87,19 +89,28 @@
             }
         }
 
+        // =======================================================
+        // Get all active players in the server
+        // (This function should return the server status instead to avoid setting server name here but whatever)
         const getCurrentPlayers = async () => {
             try {
+                // Fetch server status
                 const response = await axios.get(`${api_url}/status`)
                 const playerList = response.data.server.players
+                // Set server name  
                 serverName = response.data.server.settings.name
                 document.querySelector('#serverName').textContent = serverName;
+                // Return player list
                 return playerList
             } catch (error) {
                 throw new Error("Server status cannot be fetched")
             }
         }
 
+        // =======================================================
+        // Create Player Drop List
         const createPlayerList = async () => {
+            // Get current players and dropbox
             const players = await getCurrentPlayers()
             const playerDropList = document.querySelector('#playerDropList');
 
@@ -114,17 +125,21 @@
                 playerDropList.appendChild(option);
             })
 
+            // Add event listener to update command box in real time
             playerDropList.addEventListener('change', function() {
                 playerName = playerDropList.value
                 updateCommand()
             });
 
+            // Set default player and send update to command box
             if (players && players.length > 0) {
                 playerName = players[0].name
                 updateCommand()
             }
         }
         
+        // =======================================================
+        // Add event listener to update command box in real time for Item Prefab and Item Amount box
         prefabBox.addEventListener('input', function() {
             itemPrefab = prefabBox.value
             updateCommand();
@@ -136,27 +151,29 @@
         });
 
         // =======================================================
-        // Submitting Commands
+        // Fix command string for a little
         const processCommand = () => {
             const str = commandBox.value
-            // Fix all the quotes, new lines, remove extra spaces and rejoin with semicolon
+            // Remove extra spaces and rejoin with new lines
             const split = str.split(/\r\n|\r|\n/)
             const trimmedSplit = split.map((line) => line.replace(/^\s+/g, ''));
-            const rawCommand = trimmedSplit.join('; ')
-            console.log(rawCommand)
+            const rawCommand = trimmedSplit.join('\n')
             return rawCommand
         }
         
+        // Submitting Commands
         const sendCommand = async () => {
             try {
+                // Fix command string for a little
                 const command = processCommand()
+
+                // Send command to API (Adding command to the list)
                 const APIresponse = await axios.post(
                     `${api_url}/commands`,
                     { command: command , userId: userId}
                 )
-
-                console.log("API Response", APIresponse.data)
-
+                
+                // Send message to the user in Line, telling that the command has been received
                 const LINEresponse = await axios.post(
                     `${api_url}/line-send-message`,
                     {
@@ -165,10 +182,8 @@
                     }
                 )
 
-                console.log("Line Response", LINEresponse.data)
-                if (commandParam && commandList.hasOwnProperty(commandParam)) {
-                    liff.closeWindow()
-                }
+                // Close window after finish
+                liff.closeWindow()
             } catch (error) {
                 console.log("Error", error)
             }
@@ -177,30 +192,30 @@
         // =======================================================
         // For Initializing LINE
         const main = async () => {
+            // Initialize LIFF
             await liff.init({ liffId: "2005573575-davnr8BX" });
             if (!liff.isLoggedIn()) {
                 liff.login()
                 return false
             }
-            console.log("Login success")
 
+            // Get user profile and create player list
             const profile = await liff.getProfile();
-            
             await createPlayerList();
 
             // DOM can access to id element right away
-
             lineImage.src = profile.pictureUrl
             lineName.textContent = `Hello ${profile.displayName}!`
             userId = profile.userId
 
-            console.log(commandParam)
+            // Provide additional input box if the user select Give command
             if (commandParam === "quick4") {
                 const container = document.querySelector('.givingContainer')
                 console.log(container)
                 container.style.display = "block"
             }
 
+            // Show content
             const placeholder = document.querySelector('#placeholder');
             const content = document.querySelector('#content-wrapper');
             placeholder.style.display = "none";
@@ -209,6 +224,5 @@
 
         main()
     </script>
- 
 </body>
 </html>
